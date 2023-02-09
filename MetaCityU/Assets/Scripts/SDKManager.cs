@@ -26,6 +26,10 @@ public class SDKManager : MonoBehaviour
 
     void Start()
     {
+        #if UNITY_EDITOR
+        return;
+        #endif
+        
         SDK = new ThirdwebSDK("goerli");
     }
 }
