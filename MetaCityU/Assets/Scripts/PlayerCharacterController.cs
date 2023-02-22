@@ -10,6 +10,7 @@ public class PlayerCharacterController : MonoBehaviour
 {
     [SerializeField] private Camera _camera;
     [SerializeField] private Vector2 _viewRotateSpeed;
+    [SerializeField] private Animator _animator;
     private NavMeshAgent _agent;
 
     private Vector3 _freshPlayerToCam;
@@ -34,6 +35,19 @@ public class PlayerCharacterController : MonoBehaviour
     void Update()
     {
         ProcessMouseInput();
+        ProcessAnimator();
+    }
+
+    private void ProcessAnimator()
+    {
+        if (_agent.remainingDistance > _agent.stoppingDistance)
+        {
+            _animator.SetInteger ("AnimationPar", 1);
+        }
+        else
+        {
+            _animator.SetInteger ("AnimationPar", 0);
+        }
     }
 
 
@@ -62,15 +76,19 @@ public class PlayerCharacterController : MonoBehaviour
 
         if (_isMouseDragging && Vector3.Distance(_mouseDragPreviousMousePosition, Input.mousePosition) > 0.001f)
         {
+            //提前算好一些东西
             Vector3 camToPlayer = transform.position - _camera.transform.position;
             camToPlayer.z = 0;
             Vector3 mouseMoveVector = Input.mousePosition - _mouseDragPreviousMousePosition;
             Vector3 myPosition = transform.position;
             Transform cameraTransform = _camera.transform;
             
+            //计算两个轴的旋转量
             _camera.transform.RotateAround(myPosition, Vector3.up, mouseMoveVector.x * _viewRotateSpeed.x / 100);
             _camera.transform.RotateAround(myPosition, Vector3.Cross(camToPlayer, Vector3.up), mouseMoveVector.y * _viewRotateSpeed.y / 100);
             _camera.transform.rotation = Quaternion.Euler(cameraTransform.rotation.eulerAngles.x, cameraTransform.eulerAngles.y, 0);
+            
+            //记录当前鼠标位置
             _mouseDragPreviousMousePosition = Input.mousePosition;
         }
     }
