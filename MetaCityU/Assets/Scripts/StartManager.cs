@@ -50,7 +50,7 @@ public class StartManager : MonoBehaviour
         
         //获取智能合同
         balanceTxt.text = "Start Fetching Balance";
-        Contract contract = SDKManager.Instance.SDK.GetContract("0xcF157113bD328Ab070DBb1eD74747225a7BDD67d");
+        Contract contract = SDKManager.Instance.SDK.GetContract(SDKManager.Instance._tokenDropContractAddress);
         CurrencyValue balance = await contract.ERC20.Balance();
         
         //保存余额到本地
