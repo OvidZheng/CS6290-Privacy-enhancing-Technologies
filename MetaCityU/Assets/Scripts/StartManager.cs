@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using UnityEngine;
 using Thirdweb;
@@ -23,7 +24,7 @@ public class StartManager : MonoBehaviour
         //连接钱包
         string address = await SDKManager.Instance.SDK.wallet.Connect(new WalletConnection()
         {
-            provider = WalletProvider.CoinbaseWallet,
+            provider = WalletProvider.MetaMask,
             chainId = 5 // Switch the wallet Goerli on connection
         });
         #else

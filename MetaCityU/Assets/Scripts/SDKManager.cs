@@ -35,7 +35,7 @@ public class SDKManager : MonoBehaviour
                 .Connect(new WalletConnection()
                 {
                     provider = WalletProvider.MetaMask,
-                    chainId = 420 // Switch the wallet Optimism Goerli network on connection
+                    chainId = 5 // Switch the wallet Optimism Goerli network on connection
                 });
         return addr;
     }
@@ -51,6 +51,17 @@ public class SDKManager : MonoBehaviour
         await Connect();
         var contract = GetTokenDropContract();
         return await contract.ERC20.Claim(num.ToString());
+    }
+
+    public async Task CheckBalance()
+    {
+        await Connect();
+        
+        var contract = GetTokenDropContract();
+        CurrencyValue balance = await contract.ERC20.Balance();
+        
+        //保存余额到本地
+        PlayerData.Instance.LocalBalance = float.Parse(balance.displayValue);
     }
 
     void Start()
