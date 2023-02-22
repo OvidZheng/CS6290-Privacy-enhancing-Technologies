@@ -1,9 +1,11 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.AI;
+using Random = UnityEngine.Random;
 
 [RequireComponent(typeof(NavMeshAgent))] 
 public class PlayerCharacterController : MonoBehaviour
@@ -11,13 +13,22 @@ public class PlayerCharacterController : MonoBehaviour
     [SerializeField] private Camera _camera;
     [SerializeField] private Vector2 _viewRotateSpeed;
     [SerializeField] private Animator _animator;
+    [SerializeField] private GameObject _pathObject;
     private NavMeshAgent _agent;
 
     private Vector3 _freshPlayerToCam;
     private Vector3 _mouseDragPreviousMousePosition;
     private bool _isMouseDragging;
-    
-    
+    private NavMeshPath _navMeshPath;
+    private List<Vector3> _drawCornerList;
+    private Vector3 _currentDest;
+    private Vector3 _currentStart;
+    private bool _navPathIsFresh;
+    private float _navProcessCountDown;
+    private List<GameObject> _pathObjList;
+
+
+
     private void Awake()
     {
         _agent = GetComponent<NavMeshAgent>();
@@ -29,13 +40,47 @@ public class PlayerCharacterController : MonoBehaviour
     {
         _isMouseDragging = false;
         _freshPlayerToCam = _camera.transform.position - transform.position;
+        _navMeshPath = new NavMeshPath();
+        _drawCornerList = new List<Vector3>();
+        _pathObjList = new List<GameObject>();
+        _navPathIsFresh = false;
     }
 
     // Update is called once per frame
     void Update()
     {
+        ShowPath();
+
+        
         ProcessMouseInput();
         ProcessAnimator();
+    }
+
+    private void ShowPath()
+    {
+        if (_navProcessCountDown > 0)
+        {
+            _navProcessCountDown -= Time.deltaTime;
+        }
+        else
+        {
+            ProcessNavPath(); 
+        }
+
+        if (_navPathIsFresh)
+        {
+            foreach (var o in _pathObjList)
+            {
+                Destroy(o);
+            }
+            _pathObjList.Clear();
+
+            foreach (var p in _drawCornerList)
+            {
+                _pathObjList.Add(Instantiate(_pathObject,  p + Vector3.up * 0.5f, Quaternion.identity));
+            }
+            _navPathIsFresh = false;
+        }
     }
 
     private void ProcessAnimator()
@@ -49,6 +94,23 @@ public class PlayerCharacterController : MonoBehaviour
             _animator.SetInteger ("AnimationPar", 0);
         }
     }
+
+    private void ProcessNavPath()
+    {
+        _drawCornerList.Clear();
+        var corners = new List<Vector3>(_navMeshPath.corners);
+        corners.Append(_currentDest);
+        
+        for (int i = 0; i < corners.Count - 1; i++)
+        {
+            for (int j = 0; j < Vector3.Distance(corners[i], corners[i + 1]); j++)
+                _drawCornerList.Add(Vector3.Lerp(corners[i], corners[i + 1],
+                    j / Vector3.Distance(corners[i], corners[i + 1])));
+        }
+
+        _navPathIsFresh = true;
+    }
+    
 
 
     private void ProcessMouseInput()
@@ -105,7 +167,11 @@ public class PlayerCharacterController : MonoBehaviour
 
             if (hitResult)
             {
-                _agent.SetDestination(hit.point);
+                _currentDest = hit.point;
+                _currentStart = transform.position;
+                NavMesh.CalculatePath(_currentStart, _currentDest, NavMesh.AllAreas, _navMeshPath);
+                _agent.SetDestination(_currentDest);
+                _navProcessCountDown = 0.3f;
             }
         }
     }

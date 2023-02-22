@@ -485,6 +485,7 @@ MonoBehaviour:
   _camera: {fileID: 1306616509}
   _viewRotateSpeed: {x: 30, y: 10}
   _animator: {fileID: 1789974133}
+  _pathObject: {fileID: 6012273673089466857, guid: 7f10f0e78b8a45146937b890e40ce2dd, type: 3}
 --- !u!1001 &480415079
 PrefabInstance:
   m_ObjectHideFlags: 0
