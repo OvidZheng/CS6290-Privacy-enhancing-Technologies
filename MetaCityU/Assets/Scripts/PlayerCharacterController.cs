@@ -49,36 +49,50 @@ public class PlayerCharacterController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        //处理AI路径显示
         ShowPath();
-
         
+        //处理鼠标输入
         ProcessMouseInput();
+        
+        //处理动画
         ProcessAnimator();
     }
 
     private void ShowPath()
     {
+        //如果倒计时清0，那么处理一次路径
         if (_navProcessCountDown > 0)
         {
             _navProcessCountDown -= Time.deltaTime;
         }
-        else
+        else if( _navProcessCountDown - (-1)  > 0.001f)
         {
             ProcessNavPath(); 
+            
+            //设置路径新鲜方便建立小球
+            _navPathIsFresh = true;
+            
+            //设置为-1，强制停止处理
+            _navProcessCountDown = -1;
         }
 
         if (_navPathIsFresh)
         {
+            //摧毁之前的路径提示小球
             foreach (var o in _pathObjList)
             {
                 Destroy(o);
             }
             _pathObjList.Clear();
-
+            
+            //重新生成小球
             foreach (var p in _drawCornerList)
             {
                 _pathObjList.Add(Instantiate(_pathObject,  p + Vector3.up * 0.5f, Quaternion.identity));
             }
+            
+            //设置为不新鲜，不用再次生成
             _navPathIsFresh = false;
         }
     }
@@ -94,7 +108,10 @@ public class PlayerCharacterController : MonoBehaviour
             _animator.SetInteger ("AnimationPar", 0);
         }
     }
-
+    
+    /// <summary>
+    /// 往路径里面多塞一些点
+    /// </summary>
     private void ProcessNavPath()
     {
         _drawCornerList.Clear();
@@ -107,8 +124,6 @@ public class PlayerCharacterController : MonoBehaviour
                 _drawCornerList.Add(Vector3.Lerp(corners[i], corners[i + 1],
                     j / Vector3.Distance(corners[i], corners[i + 1])));
         }
-
-        _navPathIsFresh = true;
     }
     
 
@@ -171,6 +186,8 @@ public class PlayerCharacterController : MonoBehaviour
                 _currentStart = transform.position;
                 NavMesh.CalculatePath(_currentStart, _currentDest, NavMesh.AllAreas, _navMeshPath);
                 _agent.SetDestination(_currentDest);
+                
+                //设置倒计时等待处理路径并显示在屏幕上
                 _navProcessCountDown = 0.3f;
             }
         }
