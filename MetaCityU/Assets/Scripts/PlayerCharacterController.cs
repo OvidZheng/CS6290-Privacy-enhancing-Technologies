@@ -27,6 +27,8 @@ public class PlayerCharacterController : MonoBehaviour
     private float _navProcessCountDown;
     private List<GameObject> _pathObjList;
 
+    private bool isDisable;
+
 
 
     private void Awake()
@@ -44,11 +46,17 @@ public class PlayerCharacterController : MonoBehaviour
         _drawCornerList = new List<Vector3>();
         _pathObjList = new List<GameObject>();
         _navPathIsFresh = false;
+        isDisable = false;
     }
 
     // Update is called once per frame
     void Update()
     {
+        if (isDisable)
+        {
+            return;
+        }
+        
         //处理AI路径显示
         ShowPath();
         
@@ -191,5 +199,24 @@ public class PlayerCharacterController : MonoBehaviour
                 _navProcessCountDown = 0.3f;
             }
         }
+    }
+
+    public void DisableController(bool b)
+    {
+        if (b)
+        {
+            _freshPlayerToCam = _camera.transform.position - transform.position;
+            _agent.isStopped = true;
+            _animator.SetInteger ("AnimationPar", 0);
+        }
+        else
+        {
+            _agent.isStopped = false;
+        }
+
+        isDisable = b;
+            
+
+        
     }
 }
