@@ -10,11 +10,12 @@ using Random = UnityEngine.Random;
 [RequireComponent(typeof(NavMeshAgent))] 
 public class PlayerCharacterController : MonoBehaviour
 {
-    [SerializeField] private Camera _camera;
+    //[SerializeField] private Camera _camera;
     [SerializeField] private Vector2 _viewRotateSpeed;
     [SerializeField] private Animator _animator;
-    [SerializeField] private GameObject _pathObject;
+    //[SerializeField] private GameObject _pathObject;
     private NavMeshAgent _agent;
+    private Camera _camera;
 
     private Vector3 _freshPlayerToCam;
     private Vector3 _mouseDragPreviousMousePosition;
@@ -34,7 +35,8 @@ public class PlayerCharacterController : MonoBehaviour
     private void Awake()
     {
         _agent = GetComponent<NavMeshAgent>();
-        
+        _camera = Camera.main;
+
     }
 
     // Start is called before the first frame update
@@ -58,7 +60,7 @@ public class PlayerCharacterController : MonoBehaviour
         }
         
         //处理AI路径显示
-        ShowPath();
+        //ShowPath();
         
         //处理鼠标输入
         ProcessMouseInput();
@@ -97,7 +99,7 @@ public class PlayerCharacterController : MonoBehaviour
             //重新生成小球
             foreach (var p in _drawCornerList)
             {
-                _pathObjList.Add(Instantiate(_pathObject,  p + Vector3.up * 0.5f, Quaternion.identity));
+                //_pathObjList.Add(Instantiate(_pathObject,  p + Vector3.up * 0.5f, Quaternion.identity));
             }
             
             //设置为不新鲜，不用再次生成

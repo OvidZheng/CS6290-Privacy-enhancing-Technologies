@@ -17,7 +17,7 @@ public class CanvasManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        _tokenBalanceText.text = "Token Balance: " + PlayerData.Instance.LocalBalance;
+        _tokenBalanceText.text = "Token Balance: " + (PlayerData.Instance == null ? "null" : PlayerData.Instance.LocalBalance.ToString());
     }
 
     public void EnterCampus()
