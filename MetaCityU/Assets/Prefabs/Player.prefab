@@ -84,6 +84,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ade98e99ddf75ce409ae84819df96622, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _interpolationDataSource: 0
   _viewRotateSpeed: {x: 30, y: 10}
   _animator: {fileID: 7027002943113077890}
 --- !u!114 &7027002943489683208
@@ -107,7 +108,8 @@ MonoBehaviour:
   NetworkGuid:
     RawGuidValue: 4a6abcccc71269a4aa5a60df67a3859e
   NestedObjects: []
-  NetworkedBehaviours: []
+  NetworkedBehaviours:
+  - {fileID: 7027002943489683211}
   SimulationBehaviours: []
 --- !u!1001 &7027002943105782242
 PrefabInstance:

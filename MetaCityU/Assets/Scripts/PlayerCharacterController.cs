@@ -2,17 +2,20 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Fusion;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.AI;
 using Random = UnityEngine.Random;
 
-[RequireComponent(typeof(NavMeshAgent))] 
-public class PlayerCharacterController : MonoBehaviour
+[RequireComponent(typeof(NavMeshAgent))]
+public class PlayerCharacterController : NetworkBehaviour
 {
     //[SerializeField] private Camera _camera;
     [SerializeField] private Vector2 _viewRotateSpeed;
+
     [SerializeField] private Animator _animator;
+
     //[SerializeField] private GameObject _pathObject;
     private NavMeshAgent _agent;
     private Camera _camera;
@@ -31,12 +34,10 @@ public class PlayerCharacterController : MonoBehaviour
     private bool isDisable;
 
 
-
     private void Awake()
     {
         _agent = GetComponent<NavMeshAgent>();
         _camera = Camera.main;
-
     }
 
     // Start is called before the first frame update
@@ -58,15 +59,23 @@ public class PlayerCharacterController : MonoBehaviour
         {
             return;
         }
-        
+
         //处理AI路径显示
         //ShowPath();
-        
+
         //处理鼠标输入
         ProcessMouseInput();
-        
+
         //处理动画
         ProcessAnimator();
+    }
+
+    public override void FixedUpdateNetwork()
+    {
+        if (GetInput(out NetworkInputData inputData) && inputData.moveDestinationPosition != Vector3.zero)
+        {
+            NetworkSetDestination(inputData.moveDestinationPosition);
+        }
     }
 
     private void ShowPath()
@@ -76,13 +85,13 @@ public class PlayerCharacterController : MonoBehaviour
         {
             _navProcessCountDown -= Time.deltaTime;
         }
-        else if( _navProcessCountDown - (-1)  > 0.001f)
+        else if (_navProcessCountDown - (-1) > 0.001f)
         {
-            ProcessNavPath(); 
-            
+            ProcessNavPath();
+
             //设置路径新鲜方便建立小球
             _navPathIsFresh = true;
-            
+
             //设置为-1，强制停止处理
             _navProcessCountDown = -1;
         }
@@ -94,14 +103,15 @@ public class PlayerCharacterController : MonoBehaviour
             {
                 Destroy(o);
             }
+
             _pathObjList.Clear();
-            
+
             //重新生成小球
             foreach (var p in _drawCornerList)
             {
                 //_pathObjList.Add(Instantiate(_pathObject,  p + Vector3.up * 0.5f, Quaternion.identity));
             }
-            
+
             //设置为不新鲜，不用再次生成
             _navPathIsFresh = false;
         }
@@ -111,14 +121,14 @@ public class PlayerCharacterController : MonoBehaviour
     {
         if (_agent.remainingDistance > _agent.stoppingDistance)
         {
-            _animator.SetInteger ("AnimationPar", 1);
+            _animator.SetInteger("AnimationPar", 1);
         }
         else
         {
-            _animator.SetInteger ("AnimationPar", 0);
+            _animator.SetInteger("AnimationPar", 0);
         }
     }
-    
+
     /// <summary>
     /// 往路径里面多塞一些点
     /// </summary>
@@ -127,7 +137,7 @@ public class PlayerCharacterController : MonoBehaviour
         _drawCornerList.Clear();
         var corners = new List<Vector3>(_navMeshPath.corners);
         corners.Append(_currentDest);
-        
+
         for (int i = 0; i < corners.Count - 1; i++)
         {
             for (int j = 0; j < Vector3.Distance(corners[i], corners[i + 1]); j++)
@@ -135,16 +145,15 @@ public class PlayerCharacterController : MonoBehaviour
                     j / Vector3.Distance(corners[i], corners[i + 1])));
         }
     }
-    
 
 
     private void ProcessMouseInput()
     {
         _camera.transform.position = transform.position + _freshPlayerToCam;
 
-        ProcessLeftMouse();
+        //ProcessLeftMouse();
         ProcessRightMouse();
-        
+
         _freshPlayerToCam = _camera.transform.position - transform.position;
     }
 
@@ -155,7 +164,7 @@ public class PlayerCharacterController : MonoBehaviour
             _isMouseDragging = true;
             _mouseDragPreviousMousePosition = Input.mousePosition;
         }
-        
+
         if (Input.GetMouseButtonUp(1))
         {
             _isMouseDragging = false;
@@ -169,12 +178,14 @@ public class PlayerCharacterController : MonoBehaviour
             Vector3 mouseMoveVector = Input.mousePosition - _mouseDragPreviousMousePosition;
             Vector3 myPosition = transform.position;
             Transform cameraTransform = _camera.transform;
-            
+
             //计算两个轴的旋转量
             _camera.transform.RotateAround(myPosition, Vector3.up, mouseMoveVector.x * _viewRotateSpeed.x / 100);
-            _camera.transform.RotateAround(myPosition, Vector3.Cross(camToPlayer, Vector3.up), mouseMoveVector.y * _viewRotateSpeed.y / 100);
-            _camera.transform.rotation = Quaternion.Euler(cameraTransform.rotation.eulerAngles.x, cameraTransform.eulerAngles.y, 0);
-            
+            _camera.transform.RotateAround(myPosition, Vector3.Cross(camToPlayer, Vector3.up),
+                mouseMoveVector.y * _viewRotateSpeed.y / 100);
+            _camera.transform.rotation =
+                Quaternion.Euler(cameraTransform.rotation.eulerAngles.x, cameraTransform.eulerAngles.y, 0);
+
             //记录当前鼠标位置
             _mouseDragPreviousMousePosition = Input.mousePosition;
         }
@@ -196,11 +207,22 @@ public class PlayerCharacterController : MonoBehaviour
                 _currentStart = transform.position;
                 NavMesh.CalculatePath(_currentStart, _currentDest, NavMesh.AllAreas, _navMeshPath);
                 _agent.SetDestination(_currentDest);
-                
+
                 //设置倒计时等待处理路径并显示在屏幕上
                 _navProcessCountDown = 0.3f;
             }
         }
+    }
+
+    private void NetworkSetDestination(Vector3 dest)
+    {
+        _currentDest = dest;
+        _currentStart = transform.position;
+        //NavMesh.CalculatePath(_currentStart, _currentDest, NavMesh.AllAreas, _navMeshPath);
+        _agent.SetDestination(_currentDest);
+
+        //设置倒计时等待处理路径并显示在屏幕上
+        _navProcessCountDown = 0.3f;
     }
 
     public void DisableController(bool b)
@@ -209,7 +231,7 @@ public class PlayerCharacterController : MonoBehaviour
         {
             _freshPlayerToCam = _camera.transform.position - transform.position;
             _agent.isStopped = true;
-            _animator.SetInteger ("AnimationPar", 0);
+            _animator.SetInteger("AnimationPar", 0);
         }
         else
         {
@@ -217,8 +239,5 @@ public class PlayerCharacterController : MonoBehaviour
         }
 
         isDisable = b;
-            
-
-        
     }
 }
