@@ -58,10 +58,10 @@ public class BasicSpawner : MonoBehaviour, INetworkRunnerCallbacks
     public void OnInput(NetworkRunner runner, NetworkInput input)
     {
         NetworkInputData inputData = new NetworkInputData();
-        inputData.moveDestinationPosition = Vector3.zero;
         //左键
-        if (Input.GetMouseButtonDown(0))
+        if (Input.GetMouseButton(0))
         {
+            inputData.isPointDown = true;
             Ray mouseDirectionRay = _camera.ScreenPointToRay(Input.mousePosition);
             RaycastHit hit;
             bool hitResult = Physics.Raycast(mouseDirectionRay, out hit, Single.PositiveInfinity,
@@ -71,6 +71,10 @@ public class BasicSpawner : MonoBehaviour, INetworkRunnerCallbacks
             {
                 inputData.moveDestinationPosition = hit.point;
             }
+        }
+        else
+        {
+            inputData.isPointDown = false;
         }
         input.Set(inputData);
     }

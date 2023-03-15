@@ -15,7 +15,8 @@ public class PlayerCharacterController : NetworkBehaviour
     [SerializeField] private Vector2 _viewRotateSpeed;
 
     [SerializeField] private Animator _animator;
-
+    
+    public static PlayerCharacterController Local;
     //[SerializeField] private GameObject _pathObject;
     private NavMeshAgent _agent;
     private Camera _camera;
@@ -30,6 +31,8 @@ public class PlayerCharacterController : NetworkBehaviour
     private bool _navPathIsFresh;
     private float _navProcessCountDown;
     private List<GameObject> _pathObjList;
+    
+    public bool _isLocalPlayer;
 
     private bool isDisable;
 
@@ -52,27 +55,42 @@ public class PlayerCharacterController : NetworkBehaviour
         isDisable = false;
     }
 
+    public override void Spawned()
+    {
+        base.Spawned();
+        if (Object.HasInputAuthority)
+        {
+            Local = this;
+            _isLocalPlayer = true;
+        }
+        else
+        {
+            _isLocalPlayer = false;
+        }
+    }
+
     // Update is called once per frame
     void Update()
     {
-        if (isDisable)
+        if (isDisable || !_isLocalPlayer)
         {
-            return;
+            //do nothing
         }
-
+        else
+        {
+            //处理鼠标输入
+            ProcessMouseInput();
+        }
         //处理AI路径显示
         //ShowPath();
-
-        //处理鼠标输入
-        ProcessMouseInput();
-
+        
         //处理动画
         ProcessAnimator();
     }
 
     public override void FixedUpdateNetwork()
     {
-        if (GetInput(out NetworkInputData inputData) && inputData.moveDestinationPosition != Vector3.zero)
+        if (GetInput(out NetworkInputData inputData) && inputData.isPointDown)
         {
             NetworkSetDestination(inputData.moveDestinationPosition);
         }

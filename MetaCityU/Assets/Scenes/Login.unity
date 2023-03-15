@@ -837,6 +837,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _tokenDropContractAddress: 0xcF157113bD328Ab070DBb1eD74747225a7BDD67d
+  _marketPlaceContractAddress: 0x2C3B134B94Fe39b15814db54591C242a6C0EC74B
 --- !u!4 &593583686
 Transform:
   m_ObjectHideFlags: 0

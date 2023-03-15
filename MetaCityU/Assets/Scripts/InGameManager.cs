@@ -6,7 +6,6 @@ using UnityEngine;
 public class InGameManager : MonoBehaviour
 {
     [SerializeField] private CameraManager _cameraManager;
-    [SerializeField] private PlayerCharacterController _characterController;
     [SerializeField] private CampusGate _campusGate;
     [SerializeField] private CanvasManager _canvasManager;
 
@@ -37,7 +36,7 @@ public class InGameManager : MonoBehaviour
         if (_waitCameraEnablePlayer && _cameraManager.LerpPlayerFinish())
         {
             _waitCameraEnablePlayer = false;
-            _characterController.DisableController(false);
+            PlayerCharacterController.Local.DisableController(false);
         }
     }
 
@@ -49,7 +48,7 @@ public class InGameManager : MonoBehaviour
     public void EnterCampus()
     {
         _cameraManager.EnterCampus();
-        _characterController.DisableController(true);
+        PlayerCharacterController.Local.DisableController(true);
         _canvasManager.EnterCampus();
     }
 
