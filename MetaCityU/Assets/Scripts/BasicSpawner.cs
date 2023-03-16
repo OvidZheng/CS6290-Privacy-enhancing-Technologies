@@ -37,7 +37,6 @@ public class BasicSpawner : MonoBehaviour, INetworkRunnerCallbacks
             Scene = SceneManager.GetActiveScene().buildIndex,
             SceneManager = gameObject.AddComponent<NetworkSceneManagerDefault>()
         });
-
     }
     
     public void OnPlayerJoined(NetworkRunner runner, PlayerRef player)
@@ -69,6 +68,7 @@ public class BasicSpawner : MonoBehaviour, INetworkRunnerCallbacks
             
             if (hitResult)
             {
+                Debug.Log("hit " + hit.point.ToString());
                 inputData.moveDestinationPosition = hit.point;
             }
         }

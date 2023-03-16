@@ -6,5 +6,5 @@ using UnityEngine;
 public struct NetworkInputData : INetworkInput
 {
     public Vector3 moveDestinationPosition;
-    public bool isPointDown;
+    public NetworkBool isPointDown;
 }

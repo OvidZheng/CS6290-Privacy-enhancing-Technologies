@@ -17,6 +17,8 @@ public class PlayerCharacterController : NetworkBehaviour
     [SerializeField] private Animator _animator;
     
     public static PlayerCharacterController Local;
+    private NetworkObject _networkObject;
+    
     //[SerializeField] private GameObject _pathObject;
     private NavMeshAgent _agent;
     private Camera _camera;
@@ -35,17 +37,25 @@ public class PlayerCharacterController : NetworkBehaviour
     public bool _isLocalPlayer;
 
     private bool isDisable;
-
+    bool once = true;
 
     private void Awake()
     {
         _agent = GetComponent<NavMeshAgent>();
         _camera = Camera.main;
+        Debug.Log("awake");
     }
 
     // Start is called before the first frame update
     void Start()
     {
+        Debug.Log("start");
+
+    }
+
+    public override void Spawned()
+    {
+        base.Spawned();
         _isMouseDragging = false;
         _freshPlayerToCam = _camera.transform.position - transform.position;
         _navMeshPath = new NavMeshPath();
@@ -53,19 +63,19 @@ public class PlayerCharacterController : NetworkBehaviour
         _pathObjList = new List<GameObject>();
         _navPathIsFresh = false;
         isDisable = false;
-    }
-
-    public override void Spawned()
-    {
-        base.Spawned();
+        _networkObject = GetComponent<NetworkObject>();
+        Debug.Log("Spawned");
+        
         if (Object.HasInputAuthority)
         {
             Local = this;
             _isLocalPlayer = true;
+            Debug.Log("This is local player " + _networkObject.InputAuthority.ToString());
         }
         else
         {
             _isLocalPlayer = false;
+            Debug.Log("This is not local player " + _networkObject.InputAuthority.ToString());
         }
     }
 
@@ -90,9 +100,16 @@ public class PlayerCharacterController : NetworkBehaviour
 
     public override void FixedUpdateNetwork()
     {
-        if (GetInput(out NetworkInputData inputData) && inputData.isPointDown)
+        Debug.Log(_networkObject.InputAuthority.ToString() + " FixedUpdateNetwork");
+
+        if (GetInput(out NetworkInputData inputData))
         {
-            NetworkSetDestination(inputData.moveDestinationPosition);
+            Debug.Log(_networkObject.InputAuthority.ToString() + " " + inputData.moveDestinationPosition);
+            
+            if (inputData.isPointDown)
+            {
+                NetworkSetDestination(inputData.moveDestinationPosition);
+            }
         }
     }
 
