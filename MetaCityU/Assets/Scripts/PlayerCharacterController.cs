@@ -100,12 +100,9 @@ public class PlayerCharacterController : NetworkBehaviour
 
     public override void FixedUpdateNetwork()
     {
-        Debug.Log(_networkObject.InputAuthority.ToString() + " FixedUpdateNetwork");
 
         if (GetInput(out NetworkInputData inputData))
         {
-            Debug.Log(_networkObject.InputAuthority.ToString() + " " + inputData.moveDestinationPosition);
-            
             if (inputData.isPointDown)
             {
                 NetworkSetDestination(inputData.moveDestinationPosition);

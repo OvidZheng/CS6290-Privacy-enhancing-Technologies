@@ -1737,7 +1737,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _cameraManager: {fileID: 1306616511}
-  _characterController: {fileID: 0}
   _campusGate: {fileID: 1783338489}
   _canvasManager: {fileID: 1367946418}
 --- !u!4 &879137269
