@@ -11,6 +11,7 @@ public class BasicSpawner : MonoBehaviour, INetworkRunnerCallbacks
     [SerializeField] private NetworkRunner _networkRunner;
     [SerializeField] private NetworkPrefabRef _playerPrefab;
     [SerializeField] private GameObject _bownPosition;
+    [SerializeField] private GameMode _gameMode;
     
     private Dictionary<PlayerRef, NetworkObject> _playerList = new Dictionary<PlayerRef, NetworkObject>();
     private Camera _camera;
@@ -23,7 +24,7 @@ public class BasicSpawner : MonoBehaviour, INetworkRunnerCallbacks
 
     private void Start()
     {
-        StartGame(GameMode.AutoHostOrClient);
+        StartGame(_gameMode);
     }
 
     async void StartGame(GameMode mode)
