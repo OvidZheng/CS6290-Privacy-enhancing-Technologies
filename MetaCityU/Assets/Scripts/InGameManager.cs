@@ -8,6 +8,7 @@ public class InGameManager : MonoBehaviour
     [SerializeField] private CameraManager _cameraManager;
     [SerializeField] private CampusGate _campusGate;
     [SerializeField] private CanvasManager _canvasManager;
+    [SerializeField] private List<GameObject> _interactiveObjects;
 
     public static InGameManager Instace;
 
@@ -29,6 +30,7 @@ public class InGameManager : MonoBehaviour
     private void Start()
     {
         _waitCameraEnablePlayer = false;
+        EnableAllInteractiveObjects(false);
     }
 
     private void Update()
@@ -48,6 +50,7 @@ public class InGameManager : MonoBehaviour
     public void EnterCampus()
     {
         _cameraManager.EnterCampus();
+        EnableAllInteractiveObjects(true);
         PlayerCharacterController.Local.DisableController(true);
         _canvasManager.EnterCampus();
     }
@@ -55,8 +58,17 @@ public class InGameManager : MonoBehaviour
     public void QuitCampus()
     {
         _cameraManager.ExitCampus();
+        EnableAllInteractiveObjects(false);
         _waitCameraEnablePlayer = true;
         _campusGate.ExitGate();
         _canvasManager.ExitCampus();
+    }
+    
+    public void EnableAllInteractiveObjects(bool enable)
+    {
+        foreach (var interactiveObject in _interactiveObjects)
+        {
+            interactiveObject.SetActive(enable);
+        }
     }
 }

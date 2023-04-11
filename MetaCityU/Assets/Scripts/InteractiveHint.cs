@@ -8,6 +8,7 @@ public class InteractiveHint : MonoBehaviour
     [SerializeField] private GameObject _hintObj;
     [SerializeField] private GameObject _uiBoard;
     [SerializeField] private Vector3 _uiBoardOffset;
+    [SerializeField] private GameObject _clickEnableUI;
     private Camera _camera;
 
     private void Awake()
@@ -34,5 +35,12 @@ public class InteractiveHint : MonoBehaviour
             Vector3 posOnScreen = _camera.WorldToScreenPoint(transform.position);
             _uiBoard.transform.position = posOnScreen + _uiBoardOffset;
         }
+    }
+
+    private void OnMouseUp()
+    {
+        _clickEnableUI.SetActive(true);
+        _uiBoard.SetActive(false);
+        InGameManager.Instace.EnableAllInteractiveObjects(false);
     }
 }
